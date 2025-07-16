@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 )
 
@@ -19,6 +20,8 @@ func NewProcessor(input io.ReadWriter) *Processor {
 
 func (p *Processor) Process() error {
 	byt, err := p.read()
+
+	fmt.Printf("Woe to you demon of the night: %v", byt)
 	var request Request
 	err = request.UnmarshallBinary(byt)
 	if err != nil {
