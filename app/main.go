@@ -26,7 +26,6 @@ func main() {
 		log.Println("Accepted connection")
 		go func(conn net.Conn) {
 			defer conn.Close()
-
 			processor := NewProcessor(conn)
 			for {
 				err := processor.Process()
@@ -37,6 +36,8 @@ func main() {
 					log.Printf("an error has occurred %v\n", err)
 					return
 				}
+
+				continue
 			}
 		}(conn)
 	}
