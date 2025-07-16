@@ -107,8 +107,9 @@ func (req *Request) validateVersion() {
 
 func (req *Request) MarshalResponse() ([]byte, error) {
 	resBody := Response{
-		size:   req.size,
-		header: req.header.correlationId,
+		size:     req.size,
+		header:   req.header.correlationId,
+		errorMsg: req.errorMsg,
 	}
 
 	return resBody.MarshalBinary()
