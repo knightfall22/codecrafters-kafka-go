@@ -159,7 +159,7 @@ func (req *Request) HandleRequest() ([]byte, error) {
 			header: req.header.correlationId,
 			ResponseBody: ResponseBody{
 				errorCode:    req.errorMsg,
-				arrayLength:  4,
+				arrayLength:  1,
 				apiKey:       req.header.request_api_key,
 				minSupported: versions[0],
 				maxSupported: versions[len(versions)-1],
