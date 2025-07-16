@@ -27,10 +27,10 @@ func (res *Response) MarshalBinary() ([]byte, error) {
 		return nil, err
 	}
 
-	err = binary.Write(b, binary.BigEndian, res.Message)
-	if err != nil {
-		return nil, err
-	}
+	// err = binary.Write(b, binary.BigEndian, res.Message)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return b.Bytes(), nil
 }
