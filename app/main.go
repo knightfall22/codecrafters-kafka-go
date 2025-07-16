@@ -34,7 +34,9 @@ func main() {
 
 			go func(conn net.Conn) {
 				defer conn.Close()
+				for {
 
+				}
 			}(conn)
 		}
 	}()
