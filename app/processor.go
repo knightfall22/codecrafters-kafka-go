@@ -25,7 +25,7 @@ func (p *Processor) Process() error {
 		return err
 	}
 
-	byt, err = request.MarshalResponse()
+	byt, err = request.HandleRequest()
 	if err != nil {
 		return err
 	}
