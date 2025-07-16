@@ -8,14 +8,7 @@ import (
 	"os"
 )
 
-// Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
-var _ = net.Listen
-var _ = os.Exit
-
 func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	fmt.Println("Logs from your program will appear here!")
-
 	// Uncomment this block to pass the first stage
 
 	l, err := net.Listen("tcp", "0.0.0.0:9092")
@@ -34,31 +27,6 @@ func main() {
 		go func(conn net.Conn) {
 			defer conn.Close()
 
-			// res := Response{
-			// 	size:   0,
-			// 	header: 7,
-			// }
-
-			// b, err := res.MarshalBinary()
-			// if err != nil {
-			// 	log.Printf("an error has occurred %v\n", err)
-			// }
-
-			// buf := make([]byte, 1024)
-
-			// _, err = conn.Read(buf)
-			// if err != nil {
-			// 	if err == io.EOF {
-			// 		return
-			// 	}
-			// 	log.Printf("an error has occurred %v\n", err)
-			// 	return
-			// }
-
-			// _, err = conn.Write(b)
-			// if err != nil {
-			// 	log.Printf("an error has occurred %v\n", err)
-			// }
 			processor := NewProcessor(conn)
 			for {
 				err := processor.Process()
