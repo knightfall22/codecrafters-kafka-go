@@ -34,30 +34,41 @@ func main() {
 		go func(conn net.Conn) {
 			defer conn.Close()
 
-			res := Response{
-				Size:   0,
-				Header: 7,
-			}
+			// res := Response{
+			// 	size:   0,
+			// 	header: 7,
+			// }
 
-			b, err := res.MarshalBinary()
-			if err != nil {
-				log.Printf("an error has occurred %v\n", err)
-			}
+			// b, err := res.MarshalBinary()
+			// if err != nil {
+			// 	log.Printf("an error has occurred %v\n", err)
+			// }
 
-			buf := make([]byte, 1024)
+			// buf := make([]byte, 1024)
 
-			_, err = conn.Read(buf)
-			if err != nil {
-				if err == io.EOF {
+			// _, err = conn.Read(buf)
+			// if err != nil {
+			// 	if err == io.EOF {
+			// 		return
+			// 	}
+			// 	log.Printf("an error has occurred %v\n", err)
+			// 	return
+			// }
+
+			// _, err = conn.Write(b)
+			// if err != nil {
+			// 	log.Printf("an error has occurred %v\n", err)
+			// }
+			processor := NewProcessor(conn)
+			for {
+				err := processor.Process()
+				if err != nil {
+					if err == io.EOF {
+						return
+					}
+					log.Printf("an error has occurred %v\n", err)
 					return
 				}
-				log.Printf("an error has occurred %v\n", err)
-				return
-			}
-
-			_, err = conn.Write(b)
-			if err != nil {
-				log.Printf("an error has occurred %v\n", err)
 			}
 		}(conn)
 	}
