@@ -7,14 +7,24 @@ import (
 	"slices"
 )
 
+type ResponseBody struct {
+	errorCode        ApiErrorCodes
+	arrayLength      int8
+	apiKey           ApiProtocols
+	minSupported     int16
+	maxSupported     int16
+	tag_buffer_1     int8
+	throttle_time_ms int32
+	tag_buffer_2     int8
+}
+
 // Represents kafka response message. Header contains a single field `correlation_id`.
 // The Size field is a 32-bit signed integer. It specifies the size of the header and body.
 // Both size and header are encoded in the BigEndian format.
 type Response struct {
-	size     int32
-	header   int32
-	Message  any
-	errorMsg ApiErrorCodes
+	size   int32
+	header int32
+	ResponseBody
 }
 
 func (res *Response) MarshalBinary() ([]byte, error) {
@@ -30,12 +40,46 @@ func (res *Response) MarshalBinary() ([]byte, error) {
 		return nil, err
 	}
 
-	// err = binary.Write(b, binary.BigEndian, res.Message)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	err = binary.Write(b, binary.BigEndian, res.errorCode)
+	if err != nil {
+		return nil, err
+	}
 
-	err = binary.Write(b, binary.BigEndian, res.errorMsg)
+	if res.errorCode != 0 {
+		return b.Bytes(), nil
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.arrayLength)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.minSupported)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.maxSupported)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.tag_buffer_1)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.throttle_time_ms)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(b, binary.BigEndian, res.tag_buffer_2)
 	if err != nil {
 		return nil, err
 	}
@@ -105,11 +149,36 @@ func (req *Request) validateVersion() {
 	req.errorMsg = code
 }
 
+func (req *Request) HandleRequest() ([]byte, error) {
+
+	switch req.header.request_api_key {
+	case ApiVersions:
+		versions := req.header.request_api_key.getVersions()
+		res := Response{
+			size:   19,
+			header: req.header.correlationId,
+			ResponseBody: ResponseBody{
+				errorCode:    req.errorMsg,
+				arrayLength:  4,
+				apiKey:       req.header.request_api_key,
+				minSupported: versions[0],
+				maxSupported: versions[len(versions)-1],
+			},
+		}
+
+		return res.MarshalBinary()
+	default:
+		return req.MarshalResponse()
+	}
+}
+
 func (req *Request) MarshalResponse() ([]byte, error) {
 	resBody := Response{
-		size:     req.size,
-		header:   req.header.correlationId,
-		errorMsg: req.errorMsg,
+		size:   req.size,
+		header: req.header.correlationId,
+		ResponseBody: ResponseBody{
+			errorCode: req.errorMsg,
+		},
 	}
 
 	return resBody.MarshalBinary()
@@ -130,7 +199,7 @@ var ApiProtocolsVersions = map[ApiProtocols][]int16{
 }
 
 // Validate version of `APIProtocol`. Also validate if protocol exists
-// -when attempting to validate the protocol make v == 0
+// - when attempting to validate the protocol make v == 0
 func (pr ApiProtocols) ValidateVersion(v int16) ApiErrorCodes {
 	versions, ok := ApiProtocolsVersions[pr]
 	if !ok {
@@ -142,6 +211,15 @@ func (pr ApiProtocols) ValidateVersion(v int16) ApiErrorCodes {
 	}
 
 	return none
+}
+
+func (pr ApiProtocols) getVersions() []int16 {
+	versions, ok := ApiProtocolsVersions[pr]
+	if !ok {
+		return nil
+	}
+
+	return versions
 }
 
 type ApiErrorCodes int16
