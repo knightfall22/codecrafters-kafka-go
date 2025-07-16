@@ -55,7 +55,7 @@ func main() {
 				return
 			}
 
-			fmt.Println("Hello angel: %s", buf)
+			fmt.Printf("Hello angel: %s", buf)
 			_, err = conn.Write(b)
 			if err != nil {
 				log.Printf("an error has occurred %v\n", err)
