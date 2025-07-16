@@ -31,7 +31,6 @@ func main() {
 			defer conn.Close()
 			processor := NewProcessor(conn)
 			for {
-				fmt.Println(count.Add(1))
 				err := processor.Process()
 				if err != nil {
 					if err == io.EOF {

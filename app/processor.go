@@ -46,9 +46,11 @@ func (p *Processor) Process() error {
 
 func (p *Processor) read() ([]byte, error) {
 	byt, err := p.rd.ReadBytes('\n')
-	if err != nil && err != io.EOF {
-		return nil, err
+	if err != nil {
+		if err == io.EOF && len(byt) == 0 {
+			return nil, io.EOF
+		}
+		return byt, err
 	}
-
 	return byt, nil
 }
