@@ -5,8 +5,6 @@ import (
 	"log"
 	"net"
 	"os"
-
-	"github.com/codecrafters-io/kafka-starter-go/app/parser"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -35,7 +33,7 @@ func main() {
 		go func(conn net.Conn) {
 			defer conn.Close()
 
-			res := parser.Response{
+			res := Response{
 				Size:   0,
 				Header: 7,
 			}
