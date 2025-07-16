@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -41,6 +42,17 @@ func main() {
 			b, err := res.MarshalBinary()
 			if err != nil {
 				log.Printf("an error has occurred %v\n", err)
+			}
+
+			buf := make([]byte, 1024)
+
+			_, err = conn.Read(buf)
+			if err != nil {
+				if err == io.EOF {
+					return
+				}
+				log.Printf("an error has occurred %v\n", err)
+				return
 			}
 
 			_, err = conn.Write(b)
