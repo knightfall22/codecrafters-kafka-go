@@ -21,7 +21,6 @@ func NewProcessor(input io.ReadWriter) *Processor {
 func (p *Processor) Process() error {
 	byt, err := p.read()
 
-	fmt.Printf("Woe to you demon of the night: %v", byt)
 	var request Request
 	err = request.UnmarshallBinary(byt)
 	if err != nil {
@@ -32,6 +31,8 @@ func (p *Processor) Process() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("Woe to you demon of the night: %v\n", byt)
 
 	_, err = p.wr.Write(byt)
 	if err != nil {
