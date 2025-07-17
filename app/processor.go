@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 
 	"github.com/codecrafters-io/kafka-starter-go/app/kafka"
@@ -30,7 +29,6 @@ func (p *Processor) Process() error {
 
 	byt, err = request.HandleRequest()
 	if err != nil {
-		fmt.Printf("This is : %+v\n", err)
 		return err
 	}
 

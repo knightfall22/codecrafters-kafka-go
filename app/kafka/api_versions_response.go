@@ -3,6 +3,7 @@ package kafka
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 type APIVersionRequest struct {
@@ -10,6 +11,7 @@ type APIVersionRequest struct {
 }
 
 func (req *APIVersionRequest) MarshalBinary() ([]byte, error) {
+	fmt.Printf("This is : %+v\n", req)
 	res := req.generateResponse()
 	return res.marshall()
 }
