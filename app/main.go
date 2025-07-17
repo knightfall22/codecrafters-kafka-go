@@ -34,6 +34,7 @@ func main() {
 				err := processor.Process()
 				if err != nil {
 					if err == io.EOF {
+						log.Printf("an error has occurred %v\n", err)
 						return
 					}
 					log.Printf("an error has occurred %v\n", err)
