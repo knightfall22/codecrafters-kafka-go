@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
 )
 
@@ -27,6 +28,11 @@ type Response interface {
 
 type TaggedFields int8
 
+type ClientID struct {
+	length   int16
+	contents []byte
+}
+
 type RequestHeader struct {
 	//The API key for the request
 	request_api_key ApiProtocols
@@ -39,7 +45,7 @@ type RequestHeader struct {
 
 	//...igore these fields for now
 	//The client ID for the request
-	client_id any
+	client_id ClientID
 
 	//Optional tagged fields
 	tagged_fields TaggedFields
@@ -48,6 +54,7 @@ type RequestHeader struct {
 // Represenst a v2 Kafka response message
 type Request struct {
 	header RequestHeader
+	body   *bytes.Reader
 }
 
 func UnmarshallRequest(p []byte) (*Request, error) {
@@ -71,14 +78,38 @@ func UnmarshallRequest(p []byte) (*Request, error) {
 		return nil, err
 	}
 
+	err = binary.Read(r, binary.BigEndian, &req.header.client_id.length)
+	if err != nil {
+		return nil, err
+	}
+
+	contents := make([]byte, req.header.client_id.length)
+	fmt.Println(req)
+	_, err = io.ReadFull(r, contents)
+	if err != nil {
+		return nil, err
+	}
+	req.header.client_id.contents = contents
+
+	err = binary.Read(r, binary.BigEndian, &req.header.tagged_fields)
+	if err != nil {
+		return nil, err
+	}
+
+	req.body = r
+
 	return &req, nil
 }
 
 func (req *Request) HandleRequest() ([]byte, error) {
+	fmt.Println(req)
 
 	switch req.header.request_api_key {
 	case ApiVersions:
 		request := APIVersionRequest{RequestHeader: req.header}
+		return request.MarshalBinary()
+	case DescribeTopicPartitions:
+		request := DescribeTopicPartitionsRequest{RequestHeader: req.header, RequestBodyRaw: req.body}
 		return request.MarshalBinary()
 	default:
 		//todo: change to proper unsupported request error message

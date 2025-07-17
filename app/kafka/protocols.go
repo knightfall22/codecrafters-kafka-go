@@ -1,6 +1,13 @@
 package kafka
 
-import "slices"
+import (
+	"bytes"
+	"encoding/binary"
+	"io"
+	"slices"
+
+	"github.com/codecrafters-io/kafka-starter-go/app/commons"
+)
 
 // Representation of Kafka api protocols
 type ApiProtocols int16
@@ -23,14 +30,14 @@ var ApiProtocolsVersions = map[ApiProtocols][]int16{
 func (pr ApiProtocols) ValidateVersion(v int16) ApiErrorCodes {
 	versions, ok := ApiProtocolsVersions[pr]
 	if !ok {
-		return unsupported_version
+		return UNSUPPORTED_VERSION
 	}
 
 	if exists := slices.Contains(versions, v); !exists {
-		return unsupported_version
+		return UNSUPPORTED_VERSION
 	}
 
-	return none
+	return NONE
 }
 
 func (pr ApiProtocols) getVersions() []int16 {
@@ -45,6 +52,39 @@ func (pr ApiProtocols) getVersions() []int16 {
 type ApiErrorCodes int16
 
 const (
-	none                = 0
-	unsupported_version = 35
+	NONE                       = 0
+	UNSUPPORTED_VERSION        = 35
+	UNKNOWN_TOPIC_OR_PARTITION = 3
 )
+
+type CompactString struct {
+	length  commons.UVarint
+	content []byte
+}
+
+func ReadCompactString(buf *bytes.Reader) (CompactString, error) {
+	length, err := commons.ReadUVarint(buf)
+	if err != nil {
+		return CompactString{}, err
+	}
+
+	contents := make([]byte, length-1)
+	_, err = io.ReadFull(buf, contents)
+	if err != nil {
+		return CompactString{}, err
+	}
+
+	return CompactString{
+		length:  length,
+		content: contents,
+	}, nil
+}
+
+func WriteCompactString(buf *bytes.Buffer, c CompactString) error {
+	err := commons.WriteUvarint(buf, c.length)
+	if err != nil {
+		return err
+	}
+
+	return binary.Write(buf, binary.BigEndian, c.content)
+}

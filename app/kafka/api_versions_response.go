@@ -18,9 +18,9 @@ func (req *APIVersionRequest) generateResponse() *ApiVersionsResponse {
 	var res ApiVersionsResponseBody
 
 	if req.request_api_version != 4 {
-		res.err = unsupported_version
+		res.err = UNSUPPORTED_VERSION
 	} else {
-		res.err = none
+		res.err = NONE
 	}
 
 	res.numberOfApis = int8(len(ApiProtocolsVersions)) + 1
