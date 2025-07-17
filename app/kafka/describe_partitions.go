@@ -179,11 +179,6 @@ func (res *DescribeTopicPartitionsResponse) marshall() ([]byte, error) {
 			return nil, err
 		}
 
-		err = binary.Write(p, binary.BigEndian, res.topic[i].isInternal)
-		if err != nil {
-			return nil, err
-		}
-
 		err = commons.WriteUvarint(p, res.topic[i].partitionsArrayLength)
 		if err != nil {
 			return nil, err
