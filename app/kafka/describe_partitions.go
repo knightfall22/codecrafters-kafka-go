@@ -20,8 +20,8 @@ func (req *DescribeTopicPartitionsRequest) MarshalBinary() ([]byte, error) {
 		return nil, err
 	}
 
-	fmt.Printf("req: %+v\n", req)
 	res := req.generateResponse()
+	fmt.Printf("res: %+v\n", res)
 	return res.marshall()
 }
 
