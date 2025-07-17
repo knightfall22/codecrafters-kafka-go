@@ -73,11 +73,12 @@ func (req *DescribeTopicPartitionsRequest) generateResponse() *DescribeTopicPart
 
 	res.topicsArrayLength = req.topicArrayLength
 
-	tArrLen := len(req.topic) - 1
+	tArrLen := len(req.topic)
 
 	res.topic = make([]responseTopic, tArrLen)
 
 	for i := range tArrLen {
+		fmt.Println("kisses for you")
 		res.topic[i].topicName.length = req.topic[i].topicName.length
 		res.topic[i].topicName.content = req.topic[i].topicName.content
 
