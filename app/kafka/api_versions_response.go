@@ -3,7 +3,6 @@ package kafka
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 )
 
 type APIVersionRequest struct {
@@ -11,7 +10,6 @@ type APIVersionRequest struct {
 }
 
 func (req *APIVersionRequest) MarshalBinary() ([]byte, error) {
-	fmt.Printf("This is : %+v\n", req)
 	res := req.generateResponse()
 	return res.marshall()
 }
@@ -27,11 +25,14 @@ func (req *APIVersionRequest) generateResponse() *ApiVersionsResponse {
 
 	res.numberOfApis = int8(len(ApiProtocolsVersions)) + 1
 
-	i := 0
 	for k, v := range ApiProtocolsVersions {
-		res.apiKeys[i].apiKey = k
-		res.apiKeys[i].minSupported = v[0]
-		res.apiKeys[i].maxSupported = v[len(v)-1]
+		res.apiKeys = append(res.apiKeys,
+			apiKeys{
+				apiKey:       k,
+				minSupported: v[0],
+				maxSupported: v[len(v)-1],
+			},
+		)
 	}
 
 	return &ApiVersionsResponse{
