@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"sync/atomic"
@@ -15,7 +14,7 @@ type Processor struct {
 
 func NewProcessor(input io.ReadWriter) *Processor {
 	return &Processor{
-		rd: bufio.NewReader(input),
+		rd: input,
 		wr: input,
 	}
 }
