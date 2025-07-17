@@ -30,10 +30,9 @@ func (p *Processor) Process() error {
 
 	byt, err = request.HandleRequest()
 	if err != nil {
+		fmt.Printf("This is : %+v\n", err)
 		return err
 	}
-
-	fmt.Printf("This is : %+v\n", byt)
 
 	_, err = p.wr.Write(byt)
 	if err != nil {
