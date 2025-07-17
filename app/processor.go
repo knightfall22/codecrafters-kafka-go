@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"sync/atomic"
 
@@ -60,6 +61,8 @@ func (p *Processor) read() ([]byte, error) {
 	if err != nil && err != io.EOF {
 		return nil, err
 	}
+
+	fmt.Printf("This is : %+v\n", req)
 
 	return req, nil
 }
