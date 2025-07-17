@@ -9,7 +9,7 @@ import (
 
 type Processor struct {
 	id atomic.Int64
-	rd *bufio.Reader
+	rd io.Reader
 	wr io.Writer
 }
 
@@ -45,12 +45,15 @@ func (p *Processor) Process() error {
 }
 
 func (p *Processor) read() ([]byte, error) {
-	byt, err := p.rd.ReadBytes('\n')
-	if err != nil {
-		if err == io.EOF && len(byt) == 0 {
-			return nil, io.EOF
-		}
-		return byt, err
+	//read the 4 byte message size
+	// size := make([]byte, 4)
+	byt, err := io.ReadAll(p.rd)
+	if err != nil && err != io.EOF {
+		return nil, err
 	}
+
+	// msgLength := int32(binary.BigEndian.Uint32(size))
+
+	// msg :=
 	return byt, nil
 }
