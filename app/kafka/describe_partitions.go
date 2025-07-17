@@ -3,6 +3,7 @@ package kafka
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 
 	"github.com/codecrafters-io/kafka-starter-go/app/commons"
 )
@@ -19,6 +20,7 @@ func (req *DescribeTopicPartitionsRequest) MarshalBinary() ([]byte, error) {
 		return nil, err
 	}
 
+	fmt.Printf("req: %+v\n", req)
 	res := req.generateResponse()
 	return res.marshall()
 }
