@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 	"sync/atomic"
+
+	"github.com/codecrafters-io/kafka-starter-go/app/kafka"
 )
 
 type Processor struct {
@@ -23,8 +24,7 @@ func NewProcessor(input io.ReadWriter) *Processor {
 func (p *Processor) Process() error {
 	byt, err := p.read()
 
-	var request Request
-	err = request.UnmarshallBinary(byt)
+	request, err := kafka.UnmarshallRequest(byt)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,6 @@ func (p *Processor) Process() error {
 		return err
 	}
 
-	fmt.Printf("Woe to you demon of the night: %v\n", byt)
-
 	_, err = p.wr.Write(byt)
 	if err != nil {
 		return err
@@ -44,6 +42,8 @@ func (p *Processor) Process() error {
 	return nil
 }
 
+// Note: the issue preventing serial message processing was cause
+// by reading the entirity of the reader till io.EOF is returned
 func (p *Processor) read() ([]byte, error) {
 	//read the 4 byte message size
 	size := make([]byte, 4)
@@ -55,13 +55,11 @@ func (p *Processor) read() ([]byte, error) {
 	msgLength := int32(binary.BigEndian.Uint32(size))
 
 	//Read the request body
-	msg := make([]byte, msgLength)
-	_, err = io.ReadFull(p.rd, msg)
+	req := make([]byte, msgLength)
+	_, err = io.ReadFull(p.rd, req)
 	if err != nil && err != io.EOF {
 		return nil, err
 	}
 
-	//combine size and body
-	req := append(size, msg...)
 	return req, nil
 }
