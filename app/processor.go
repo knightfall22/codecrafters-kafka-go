@@ -4,13 +4,11 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"sync/atomic"
 
 	"github.com/codecrafters-io/kafka-starter-go/app/kafka"
 )
 
 type Processor struct {
-	id atomic.Int64
 	rd io.Reader
 	wr io.Writer
 }
@@ -34,6 +32,8 @@ func (p *Processor) Process() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("This is : %+v\n", byt)
 
 	_, err = p.wr.Write(byt)
 	if err != nil {
@@ -61,8 +61,6 @@ func (p *Processor) read() ([]byte, error) {
 	if err != nil && err != io.EOF {
 		return nil, err
 	}
-
-	fmt.Printf("This is : %+v\n", req)
 
 	return req, nil
 }
