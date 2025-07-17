@@ -17,7 +17,7 @@ func (req *APIVersionRequest) MarshalBinary() ([]byte, error) {
 func (req *APIVersionRequest) generateResponse() *ApiVersionsResponse {
 	var res ApiVersionsResponseBody
 
-	if req.request_api_version > 4 {
+	if req.request_api_version != 4 {
 		res.err = unsupported_version
 	} else {
 		res.err = none
