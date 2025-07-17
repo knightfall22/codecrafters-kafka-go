@@ -117,13 +117,14 @@ type DescribeTopicPartitionsResponse struct {
 type partitions struct{}
 
 type responseTopic struct {
-	err                   ApiErrorCodes
-	topicName             CompactString
-	topicID               [16]byte
-	isInternal            int8
-	partitionsArrayLength commons.UVarint
-	partitions            []partitions
-	taggedBuffer          TaggedFields
+	err                       ApiErrorCodes
+	topicName                 CompactString
+	topicID                   [16]byte
+	isInternal                int8
+	partitionsArrayLength     commons.UVarint
+	partitions                []partitions
+	topicAuthorizedOperations int32
+	taggedBuffer              TaggedFields
 }
 
 type DescribeTopicPartitionsResponseBody struct {
@@ -191,6 +192,26 @@ func (res *DescribeTopicPartitionsResponse) marshall() ([]byte, error) {
 		// for _, p := range res.topic[i].partitions {
 
 		// }
+
+		err = binary.Write(p, binary.BigEndian, res.topic[i].topicAuthorizedOperations)
+		if err != nil {
+			return nil, err
+		}
+
+		err = binary.Write(p, binary.BigEndian, res.taggedBuffer)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = binary.Write(p, binary.BigEndian, res.nextCursor)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binary.Write(p, binary.BigEndian, res.taggedBuffer)
+	if err != nil {
+		return nil, err
 	}
 
 	payload := p.Bytes()
